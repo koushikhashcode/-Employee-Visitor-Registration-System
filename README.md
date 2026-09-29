@@ -143,21 +143,37 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. The Vite de
 
 ---
 
-## 🧪 Build & Production Deployment
+## 🧪 Deployment & Production Build
 
-### Build the Frontend:
-```bash
-cd client
-npm run build
-```
-This produces an optimized production bundle in `client/dist`.
+This repository is configured for one-command deployment across cloud platforms (e.g. **Render**, **Railway**, **Heroku**, **Vercel**).
 
-### Run Production Server:
-```bash
-cd server
-NODE_ENV=production PORT=5000 node server.js
-```
-The server will automatically serve the static React frontend from `../client/dist` and handle client-side routing fallbacks.
+### One-Command Full-Stack Deployment
+- **Build Command**:
+  ```bash
+  npm run build
+  ```
+- **Start Command**:
+  ```bash
+  npm start
+  ```
+
+### Manual / Separate Deployment:
+
+#### 1. Frontend Client Only (Vercel / Netlify / Cloudflare Pages):
+- **Root Directory**: `client`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+- **Environment Variable**: `VITE_API_URL=https://your-backend-domain.com/api`
+
+#### 2. Backend Express API Only (Render / Railway / Fly.io / Heroku):
+- **Root Directory**: `server`
+- **Build Command**: `npm run build` *(installs and builds client static bundle)*
+- **Start Command**: `npm start`
+- **Environment Variables**:
+  - `NODE_ENV=production`
+  - `PORT=5000`
+  - `MONGO_URI=your_mongodb_connection_string`
+  - `CLIENT_URL=https://your-frontend-domain.com`
 
 ---
 
