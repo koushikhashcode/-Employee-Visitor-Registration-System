@@ -1,0 +1,6 @@
+{
+  "name": "Front Desk - Visitor Registration System",
+  "description": "Production-grade MERN stack visitor registration and reception management system.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
