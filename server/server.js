@@ -38,7 +38,7 @@ async function startServer() {
 }
 
 // Only auto-start when executed directly
-if (process.argv[1] && process.argv[1].endsWith('server/server.ts')) {
+if (process.argv[1] && (process.argv[1].endsWith('server.js') || process.argv[1].endsWith('server.ts'))) {
   startServer();
 }
 

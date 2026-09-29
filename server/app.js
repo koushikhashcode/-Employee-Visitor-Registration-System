@@ -1,11 +1,11 @@
-import express, { Application } from 'express';
+import express from 'express';
 import cors from 'cors';
 import visitorRoutes from './routes/visitorRoutes.js';
 import { notFoundHandler, errorHandler } from './middleware/errorHandler.js';
 import { getDBStatus } from './config/db.js';
 
-export const createApp = (): Application => {
-  const app: Application = express();
+export const createApp = () => {
+  const app = express();
 
   // Middlewares
   app.use(cors());

@@ -1,29 +1,16 @@
-import { Request, Response, NextFunction } from 'express';
-
-export interface CustomError extends Error {
-  statusCode?: number;
-  kind?: string;
-  errors?: Record<string, { message: string }>;
-}
-
-export const notFoundHandler = (req: Request, res: Response, _next: NextFunction): void => {
+export const notFoundHandler = (req, res, _next) => {
   res.status(404).json({
     success: false,
     message: `Resource not found at ${req.method} ${req.originalUrl}`,
   });
 };
 
-export const errorHandler = (
-  err: CustomError,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): void => {
+export const errorHandler = (err, _req, res, _next) => {
   console.error('API Error:', err);
 
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
-  let errors: Record<string, string> | undefined;
+  let errors;
 
   // Handle Mongoose Bad ObjectId (CastError)
   if (err.name === 'CastError' || err.kind === 'ObjectId') {

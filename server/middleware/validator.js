@@ -1,17 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
-import { VISITOR_PURPOSES, VisitorPurpose } from '../models/Visitor.js';
+import { VISITOR_PURPOSES } from '../models/Visitor.js';
 
-export interface ValidationErrorMap {
-  [key: string]: string;
-}
-
-export const validateVisitorInput = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void => {
+export const validateVisitorInput = (req, res, next) => {
   const { name, mobile, organization, personToMeet, purpose } = req.body;
-  const errors: ValidationErrorMap = {};
+  const errors = {};
 
   // Name validation
   if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -49,7 +40,7 @@ export const validateVisitorInput = (
   // Purpose validation
   if (!purpose || typeof purpose !== 'string' || purpose.trim().length === 0) {
     errors.purpose = 'Purpose of visit is required';
-  } else if (!VISITOR_PURPOSES.includes(purpose as VisitorPurpose)) {
+  } else if (!VISITOR_PURPOSES.includes(purpose)) {
     errors.purpose = `Purpose must be one of: ${VISITOR_PURPOSES.join(', ')}`;
   }
 
@@ -67,7 +58,7 @@ export const validateVisitorInput = (
   req.body.mobile = mobile.trim().replace(/[\s-]/g, '');
   req.body.organization = organization.trim();
   req.body.personToMeet = personToMeet.trim();
-  req.body.purpose = purpose.trim() as VisitorPurpose;
+  req.body.purpose = purpose.trim();
 
   next();
 };

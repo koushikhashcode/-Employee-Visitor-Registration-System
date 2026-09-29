@@ -1,19 +1,6 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose from 'mongoose';
 
-export type VisitorPurpose = 'Meeting' | 'Interview' | 'Delivery' | 'Maintenance' | 'Personal' | 'Other';
-
-export interface IVisitor extends Document {
-  name: string;
-  mobile: string;
-  organization: string;
-  personToMeet: string;
-  purpose: VisitorPurpose;
-  visitedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export const VISITOR_PURPOSES: VisitorPurpose[] = [
+export const VISITOR_PURPOSES = [
   'Meeting',
   'Interview',
   'Delivery',
@@ -22,7 +9,7 @@ export const VISITOR_PURPOSES: VisitorPurpose[] = [
   'Other',
 ];
 
-const VisitorSchema: Schema<IVisitor> = new Schema(
+const VisitorSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -36,7 +23,7 @@ const VisitorSchema: Schema<IVisitor> = new Schema(
       required: [true, 'Mobile number is required'],
       trim: true,
       validate: {
-        validator: function (v: string) {
+        validator: function (v) {
           // Exactly 10 digits
           return /^\d{10}$/.test(v);
         },
@@ -75,7 +62,7 @@ const VisitorSchema: Schema<IVisitor> = new Schema(
     timestamps: true,
     toJSON: {
       virtuals: true,
-      transform: function (_doc, ret: Record<string, any>) {
+      transform: function (_doc, ret) {
         ret.id = ret._id;
         delete ret.__v;
         return ret;
@@ -89,5 +76,5 @@ VisitorSchema.index({ visitedAt: -1 });
 VisitorSchema.index({ name: 'text', organization: 'text' });
 VisitorSchema.index({ mobile: 1 });
 
-export const Visitor: Model<IVisitor> =
-  mongoose.models.Visitor || mongoose.model<IVisitor>('Visitor', VisitorSchema);
+export const Visitor =
+  mongoose.models.Visitor || mongoose.model('Visitor', VisitorSchema);

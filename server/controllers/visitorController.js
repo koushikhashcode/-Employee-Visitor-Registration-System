@@ -1,22 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
-import { Visitor, IVisitor, VisitorPurpose } from '../models/Visitor.js';
-
-// In-Memory Seed & Data Store for graceful fallback when live MongoDB is not configured
-interface MemoryVisitor {
-  id: string;
-  name: string;
-  mobile: string;
-  organization: string;
-  personToMeet: string;
-  purpose: VisitorPurpose;
-  visitedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { Visitor, VISITOR_PURPOSES } from '../models/Visitor.js';
 
 // Initial realistic seed data for the front desk reception register
-const initialMemoryVisitors: MemoryVisitor[] = [
+const initialMemoryVisitors = [
   {
     id: 'vis_01j7x8a901',
     name: 'Sarah Jenkins',
@@ -85,10 +71,10 @@ const initialMemoryVisitors: MemoryVisitor[] = [
   },
 ];
 
-let inMemoryStore: MemoryVisitor[] = [...initialMemoryVisitors];
+let inMemoryStore = [...initialMemoryVisitors];
 
 // Helper to determine if we should execute using live Mongoose model
-const isMongoLive = (): boolean => {
+const isMongoLive = () => {
   return mongoose.connection.readyState === 1;
 };
 
@@ -97,11 +83,7 @@ const isMongoLive = (): boolean => {
  * @desc    Get all visitors with newest first, supporting search by name or mobile
  * @access  Public
  */
-export const getVisitors = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getVisitors = async (req, res, next) => {
   try {
     const searchTerm = typeof req.query.search === 'string' ? req.query.search.trim() : '';
 
@@ -116,7 +98,7 @@ export const getVisitors = async (
 
       const visitors = await Visitor.find(filter).sort({ visitedAt: -1 }).lean();
       const formatted = visitors.map((v) => ({
-        id: (v as any)._id.toString(),
+        id: v._id.toString(),
         name: v.name,
         mobile: v.mobile,
         organization: v.organization,
@@ -168,11 +150,7 @@ export const getVisitors = async (
  * @desc    Get a single visitor by ID
  * @access  Public
  */
-export const getVisitorById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getVisitorById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -189,7 +167,7 @@ export const getVisitorById = async (
       res.status(200).json({
         success: true,
         data: {
-          id: (visitor as any)._id.toString(),
+          id: visitor._id.toString(),
           name: visitor.name,
           mobile: visitor.mobile,
           organization: visitor.organization,
@@ -223,11 +201,7 @@ export const getVisitorById = async (
  * @desc    Register a new visitor
  * @access  Public
  */
-export const createVisitor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const createVisitor = async (req, res, next) => {
   try {
     const { name, mobile, organization, personToMeet, purpose } = req.body;
     const now = new Date();
@@ -246,7 +220,7 @@ export const createVisitor = async (
         success: true,
         message: 'Visitor checked in successfully',
         data: {
-          id: (newVisitor as any)._id.toString(),
+          id: newVisitor._id.toString(),
           name: newVisitor.name,
           mobile: newVisitor.mobile,
           organization: newVisitor.organization,
@@ -262,7 +236,7 @@ export const createVisitor = async (
 
     // In-memory fallback
     const id = `vis_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
-    const newVisitor: MemoryVisitor = {
+    const newVisitor = {
       id,
       name,
       mobile,
@@ -291,11 +265,7 @@ export const createVisitor = async (
  * @desc    Update visitor details
  * @access  Public
  */
-export const updateVisitor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const updateVisitor = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { name, mobile, organization, personToMeet, purpose } = req.body;
@@ -327,7 +297,7 @@ export const updateVisitor = async (
         success: true,
         message: 'Visitor record updated successfully',
         data: {
-          id: (updated as any)._id.toString(),
+          id: updated._id.toString(),
           name: updated.name,
           mobile: updated.mobile,
           organization: updated.organization,
@@ -372,11 +342,7 @@ export const updateVisitor = async (
  * @desc    Remove a visitor record
  * @access  Public
  */
-export const deleteVisitor = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const deleteVisitor = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -421,11 +387,7 @@ export const deleteVisitor = async (
  * @desc    Get dashboard metrics: today's count, all-time count, and latest visitor
  * @access  Public
  */
-export const getTodayStats = async (
-  _req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getTodayStats = async (_req, res, next) => {
   try {
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
@@ -444,7 +406,7 @@ export const getTodayStats = async (
           totalCount,
           latestVisitor: latestVisitor
             ? {
-                id: (latestVisitor as any)._id.toString(),
+                id: latestVisitor._id.toString(),
                 name: latestVisitor.name,
                 organization: latestVisitor.organization,
                 purpose: latestVisitor.purpose,
@@ -491,21 +453,10 @@ export const getTodayStats = async (
  * @desc    Export visitor list to CSV (respecting optional search filter)
  * @access  Public
  */
-export const exportVisitorsCSV = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const exportVisitorsCSV = async (req, res, next) => {
   try {
     const searchTerm = typeof req.query.search === 'string' ? req.query.search.trim() : '';
-    let visitorList: Array<{
-      name: string;
-      mobile: string;
-      organization: string;
-      personToMeet: string;
-      purpose: string;
-      visitedAt: Date | string;
-    }> = [];
+    let visitorList = [];
 
     if (isMongoLive()) {
       let filter = {};
@@ -534,7 +485,7 @@ export const exportVisitorsCSV = async (
 
     // CSV Header row
     const headers = ['Visitor Name', 'Mobile Number', 'Organization', 'Person to Meet', 'Purpose', 'Check-In Timestamp'];
-    const escapeCsv = (val: string | number | undefined | null) => {
+    const escapeCsv = (val) => {
       const str = String(val ?? '');
       if (str.includes(',') || str.includes('"') || str.includes('\n')) {
         return `"${str.replace(/"/g, '""')}"`;

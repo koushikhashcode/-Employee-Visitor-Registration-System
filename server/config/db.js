@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 
 let isConnectedToMongoDB = false;
 
-export const connectDB = async (): Promise<boolean> => {
+export const connectDB = async () => {
   const mongoUri = process.env.MONGO_URI;
 
   if (!mongoUri || mongoUri.trim() === '') {
@@ -21,12 +21,12 @@ export const connectDB = async (): Promise<boolean> => {
   try {
     console.log(`[Database] Attempting connection to MongoDB at ${mongoUri.replace(/:([^:@]{3,})@/, ':****@')}...`);
     await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 2500, // Short timeout to prevent server hang if local mongod is not active
+      serverSelectionTimeoutMS: 2500,
     });
     isConnectedToMongoDB = true;
     console.log('\x1b[32m%s\x1b[0m', '✓ [Database] Connected successfully to live MongoDB instance.');
     return true;
-  } catch (error: any) {
+  } catch (error) {
     console.warn('\x1b[33m%s\x1b[0m', `⚠ [Database] MongoDB connection unavailable (${error.message || 'offline'}).`);
     console.log('\x1b[36m%s\x1b[0m', 'ℹ [Database] Falling back to In-Memory store for all /api/visitors endpoints.');
     isConnectedToMongoDB = false;
