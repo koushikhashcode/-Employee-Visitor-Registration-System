@@ -213,6 +213,8 @@ export const VisitorProvider = ({ children }) => {
         toasts,
         addToast,
         removeToast,
+        openConfirmModal: (v) => setDeleteCandidate(v),
+        fetchVisitors: refreshData,
         dataSource,
       }}
     >
